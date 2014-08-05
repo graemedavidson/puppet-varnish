@@ -97,7 +97,7 @@ class varnish (
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => template('varnish/varnish-system-conf.erb'),
+      content => template('varnish/varnish-systemd-conf.erb'),
       require => Package['varnish'],
       notify  => Service['varnish'],
     }
@@ -109,7 +109,7 @@ class varnish (
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => template('varnish/varnish-system-conf.erb'),
+      content => template('varnish/varnish-params.erb'),
       require => Package['varnish'],
       notify  => Service['varnish'],
     }

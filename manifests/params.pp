@@ -11,7 +11,7 @@ class varnish::params {
         $conf_file_path = '/etc/systemd/system/varnish.service'
       } else {
         $conf_use_systemd = false
-        $conf_file_path = '/etc/default/varnish'
+        $conf_file_path = '/etc/sysconfig/varnish'
       }
     }
     default : {

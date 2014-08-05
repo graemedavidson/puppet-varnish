@@ -68,7 +68,8 @@ describe 'varnish', :type => :class do
       {
         :osfamily        => 'RedHat',
         :concat_basedir  => '/dne',
-        :operatingsystem => 'RedHat'
+        :operatingsystem => 'RedHat',
+	:operatingsystemmajrelease => 6
       }
     end
     
