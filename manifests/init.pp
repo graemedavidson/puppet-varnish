@@ -40,15 +40,15 @@
 #   varnish_listen_port  => '80',
 #   varnish_storage_size => '2G',
 #   varnish_vcl_conf     => '/etc/varnish/my-vcl.vcl',
-# }
+#}
 #
 
 class varnish (
-  $start                        = 'yes',
-  $nfiles                       = '131072',
-  $memlock                      = '82000',
-  $storage_type                 = 'malloc',
-  $varnish_vcl_conf             = '/etc/varnish/default.vcl',
+  $start            = 'yes',
+  $nfiles           = '131072',
+  $memlock          = '82000',
+  $storage_type     = 'malloc',
+  $varnish_vcl_conf = '/etc/varnish/default.vcl',
   $varnish_listen_address       = '',
   $varnish_listen_port          = '6081',
   $varnish_admin_listen_address = '127.0.0.1',
@@ -59,26 +59,24 @@ class varnish (
   $varnish_storage_size         = '1G',
   $varnish_secret_file          = '/etc/varnish/secret',
   $varnish_storage_file         = '/var/lib/varnish-storage/varnish_storage.bin',
-  $varnish_ttl                  = '120',
-  $shmlog_dir                   = '/var/lib/varnish',
-  $shmlog_tempfs                = true,
-  $version                      = present,
-  $add_repo                     = true,
-  $manage_firewall              = false,
-) {
-
+  $varnish_ttl      = '120',
+  $shmlog_dir       = '/var/lib/varnish',
+  $shmlog_tempfs    = true,
+  $version          = present,
+  $add_repo         = true,
+  $manage_firewall  = false,) {
   # read parameters
   include varnish::params
 
   # install Varnish
-  class {'varnish::install':
+  class { 'varnish::install':
     add_repo            => $add_repo,
     manage_firewall     => $manage_firewall,
     varnish_listen_port => $varnish_listen_port,
   }
 
   # enable Varnish service
-  class {'varnish::service':
+  class { 'varnish::service':
     start => $start,
   }
 
@@ -90,20 +88,47 @@ class varnish (
     }
   }
 
-  # varnish config file
-  file { 'varnish-conf':
-    ensure  => present,
-    path    => $varnish::params::conf_file_path,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    content => template('varnish/varnish-conf.erb'),
-    require => Package['varnish'],
-    notify  => Service['varnish'],
-  }
+  if $varnish::params::conf_use_systemd == true {
+    # Newer systems like RedHat 7
+    # varnish systemd config file
+    file { 'varnish-conf':
+      ensure  => present,
+      path    => $varnish::params::conf_file_path,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => template('varnish/varnish-system-conf.erb'),
+      require => Package['varnish'],
+      notify  => Service['varnish'],
+    }
 
+    # Varnish params
+    file { 'varnish-conf-params':
+      ensure  => present,
+      path    => $varnish::params::params_file_path,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => template('varnish/varnish-system-conf.erb'),
+      require => Package['varnish'],
+      notify  => Service['varnish'],
+    }
+  } else {
+    # varnish config file
+    file { 'varnish-conf':
+      ensure  => present,
+      path    => $varnish::params::conf_file_path,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => template('varnish/varnish-conf.erb'),
+      require => Package['varnish'],
+      notify  => Service['varnish'],
+    }
+  }
   # storage dir
   $varnish_storage_dir = regsubst($varnish_storage_file, '(^/.*)(/.*$)', '\1')
+
   file { 'storage-dir':
     ensure  => directory,
     path    => $varnish_storage_dir,
