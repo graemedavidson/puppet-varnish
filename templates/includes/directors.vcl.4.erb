@@ -1,0 +1,5 @@
+# set director <%= @title %>
+new <%= @title -%> = directors.<%= @type -%>();
+<%- @backends.each do |backend| -%>
+	<%= @title -%>.add_backend(<%= backend -%>);
+<%- end -%>

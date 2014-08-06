@@ -28,6 +28,7 @@
 # Not following above rules will result in VCL compilation failure
 #
 class varnish::vcl (
+  $version           = 3,
   $probes            = {},
   $backends          = { 'default' => { host => '127.0.0.1', port => '8080' } },
   $directors         = {},
