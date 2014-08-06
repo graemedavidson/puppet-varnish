@@ -28,9 +28,9 @@ VARNISH_SECRET_FILE=<%= scope.lookupvar('varnish_secret_file') %>
 # Backend storage specification, see Storage Types in the varnishd(5)
 # man page for details.
 <% if scope.lookupvar('storage_type') == 'malloc' %>
-VARNISH_STORAGE="<%= scope.lookupvar('storage_type') %>,${VARNISH_STORAGE_SIZE}"
+VARNISH_STORAGE="<%= scope.lookupvar('storage_type') %>,<%= scope.lookupvar('varnish_storage_size') %>"
 <% else %>
-VARNISH_STORAGE="<%= scope.lookupvar('storage_type') %>,${VARNISH_STORAGE_FILE},${VARNISH_STORAGE_SIZE}"
+VARNISH_STORAGE="<%= scope.lookupvar('storage_type') %>,<%= scope.lookupvar('varnish_storage_file') %>,<%= scope.lookupvar('varnish_storage_size') %>"
 <% end %>
 
 # Default TTL used when the backend does not specify one
@@ -40,14 +40,5 @@ VARNISH_TTL=<%= scope.lookupvar('varnish_ttl') %>
 VARNISH_USER=<%= scope.lookupvar('varnish_user') %>    
 VARNISH_GROUP=<%= scope.lookupvar('varnish_group') %>
 
-# The minimum number of worker threads to start
-VARNISH_MIN_THREADS=<%= scope.lookupvar('varnish_min_threads') %>
-
-# The Maximum number of worker threads to start
-VARNISH_MAX_THREADS=<%= scope.lookupvar('varnish_max_threads') %>
-
-# Idle timeout for worker threads
-VARNISH_THREAD_TIMEOUT=<%= scope.lookupvar('varnish_thread_timeout') %>    
-
 # Other options, see the man page varnishd(1)
-DAEMON_OPTS="-p thread_pool_min=${VARNISH_MIN_THREADS} -p thread_pool_max=${VARNISH_MAX_THREADS} -p thread_pool_timeout=${VARNISH_THREAD_TIMEOUT}"
+DAEMON_OPTS="-p thread_pool_min=<%= scope.lookupvar('varnish_min_threads') %> -p thread_pool_max=<%= scope.lookupvar('varnish_max_threads') %> -p thread_pool_timeout=<%= scope.lookupvar('varnish_thread_timeout') %>"

@@ -44,11 +44,11 @@
 #
 
 class varnish (
-  $start            = 'yes',
-  $nfiles           = '131072',
-  $memlock          = '82000',
-  $storage_type     = 'malloc',
-  $varnish_vcl_conf = '/etc/varnish/default.vcl',
+  $start         = 'yes',
+  $nfiles        = '131072',
+  $memlock       = '82000',
+  $storage_type  = 'malloc',
+  $varnish_vcl_conf             = '/etc/varnish/default.vcl',
   $varnish_listen_address       = '',
   $varnish_listen_port          = '6081',
   $varnish_admin_listen_address = '127.0.0.1',
@@ -59,12 +59,15 @@ class varnish (
   $varnish_storage_size         = '1G',
   $varnish_secret_file          = '/etc/varnish/secret',
   $varnish_storage_file         = '/var/lib/varnish-storage/varnish_storage.bin',
-  $varnish_ttl      = '120',
-  $shmlog_dir       = '/var/lib/varnish',
-  $shmlog_tempfs    = true,
-  $version          = present,
-  $add_repo         = true,
-  $manage_firewall  = false,) {
+  $varnish_ttl   = '120',
+  $varnish_user  = 'varnish',
+  $varnish_group = 'varnish',
+  $varnish_reload_vcl           = 1,
+  $shmlog_dir    = '/var/lib/varnish',
+  $shmlog_tempfs = true,
+  $version       = present,
+  $add_repo      = true,
+  $manage_firewall              = false,) {
   # read parameters
   include varnish::params
 
