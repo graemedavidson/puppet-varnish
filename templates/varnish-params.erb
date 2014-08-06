@@ -16,7 +16,7 @@ VARNISH_VCL_CONF=<%= scope.lookupvar('varnish_vcl_conf') %>
 # and IPv6 interfaces, otherwise specify a host name, an IPv4 dotted
 # quad, or an IPv6 address in brackets.
 VARNISH_LISTEN_ADDRESS=<%= scope.lookupvar('varnish_listen_address') %>
-VARNISH_LISTEN_PORT=<%= scope.lookupvar('varnish_listen_port') %>    
+VARNISH_LISTEN_PORT=<%= scope.lookupvar('varnish_listen_port') %>
 
 # Admin interface listen address and port
 VARNISH_ADMIN_LISTEN_ADDRESS=<%= scope.lookupvar('varnish_admin_listen_address') %>
@@ -37,7 +37,7 @@ VARNISH_STORAGE="<%= scope.lookupvar('storage_type') %>,<%= scope.lookupvar('var
 VARNISH_TTL=<%= scope.lookupvar('varnish_ttl') %>
 
 # User and group for the varnishd worker processes
-VARNISH_USER=<%= scope.lookupvar('varnish_user') %>    
+VARNISH_USER=<%= scope.lookupvar('varnish_user') %>
 VARNISH_GROUP=<%= scope.lookupvar('varnish_group') %>
 
 # Other options, see the man page varnishd(1)

@@ -126,6 +126,11 @@ describe 'varnish', :type => :class do
       'notify'  => 'Service[varnish]'
       )
     }
+    context "default varnish-conf values" do
+      it { should contain_file('varnish-conf').with_content(/^LimitNOFILE=131072$/) }
+      it { should contain_file('varnish-conf').with_content(/^LimitMEMLOCK=82000$/) }
+    end
+
     it { should contain_file('varnish-conf-params').with(
       'ensure'  => 'present',
       'path'    => '/etc/varnish/varnish.params',
@@ -136,6 +141,21 @@ describe 'varnish', :type => :class do
       'notify'  => 'Service[varnish]'
       )
     }
+    context "default varnish-conf-params values" do
+      it { should contain_file('varnish-conf-params').with_content(/^RELOAD_VCL=1$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_VCL_CONF=\/etc\/varnish\/default\.vcl$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_LISTEN_ADDRESS=$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_LISTEN_PORT=6081$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_ADMIN_LISTEN_ADDRESS=127.0.0.1$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_ADMIN_LISTEN_PORT=6082$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_SECRET_FILE=\/etc\/varnish\/secret$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_STORAGE="malloc,1G"$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_TTL=120$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_USER=varnish$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^VARNISH_GROUP=varnish$/) }
+      it { should contain_file('varnish-conf-params').with_content(/^DAEMON_OPTS="-p thread_pool_min=5 -p thread_pool_max=500 -p thread_pool_timeout=300"$/) }
+    end
+
     it { should contain_file('storage-dir').with(
       'ensure'  => 'directory',
       'path'   => '/var/lib/varnish-storage',
