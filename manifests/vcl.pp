@@ -29,33 +29,52 @@
 #
 class varnish::vcl (
   $version           = 3,
-  $probes            = {},
-  $backends          = { 'default' => { host => '127.0.0.1', port => '8080' } },
-  $directors         = {},
-  $selectors         = {},
+  $probes            = {
+  }
+  ,
+  $backends          = {
+    'default' => {
+      host => '127.0.0.1',
+      port => '8080'
+    }
+  }
+  ,
+  $directors         = {
+  }
+  ,
+  $selectors         = {
+  }
+  ,
   $conditions        = [],
-  $acls              = {},
+  $acls              = {
+  }
+  ,
   $blockedips        = [],
   $blockedbots       = [],
   $enable_waf        = false,
-  $wafexceptions     = [ '57' , '56' , '34' ],
+  $wafexceptions     = ['57', '56', '34'],
   $purgeips          = [],
   $includedir        = '/etc/varnish/includes',
   $manage_includes   = true,
-  $cookiekeeps       = [ '__ac', '_ZopeId', 'captchasessionid', 'statusmessages', '__cp', 'MoodleSession'],
+  $cookiekeeps       = ['__ac', '_ZopeId', 'captchasessionid', 'statusmessages', '__cp', 'MoodleSession'],
   $defaultgrace      = undef,
   $min_cache_time    = '60s',
   $static_cache_time = '5m',
-  $gziptypes         = [ 'text/', 'application/xml', 'application/rss', 'application/xhtml', 'application/javascript', 'application/x-javascript' ],
+  $gziptypes         = [
+    'text/',
+    'application/xml',
+    'application/rss',
+    'application/xhtml',
+    'application/javascript',
+    'application/x-javascript'],
   $template          = undef,
-  $logrealip         = false,
-) {
-
+  $logrealip         = false,) {
   include varnish
 
   # define include file type
   define includefile {
     $selectors = $varnish::vcl::selectors
+
     concat { "${varnish::vcl::includedir}/${title}.vcl":
       owner   => 'root',
       group   => 'root',
@@ -71,14 +90,14 @@ class varnish::vcl (
     }
   }
 
-
   # select template to use
   if $template {
     $template_vcl = $template
-  }
-  else {
-    $template_vcl = 'varnish/varnish-vcl.erb'
-  }
+  } else {
+    $template_vcl = $varnish::vcl::version ? {
+      4       => 'varnish/varnish-vcl.4.erb',
+      default => 'varnish/varnish-vcl.erb'
+    } }
 
   # vcl file
   file { 'varnish-vcl':
@@ -98,7 +117,9 @@ class varnish::vcl (
       require => Package['varnish'],
     }
     $includefiles = ['probes', 'backends', 'directors', 'acls', 'backendselection', 'waf']
-    includefile { $includefiles: }
+
+    includefile { $includefiles:
+    }
 
     # web application firewall
     concat::fragment { 'waf':
@@ -107,31 +128,35 @@ class varnish::vcl (
       order   => '02',
     }
 
-    #Create resources
+    # Create resources
 
-    #Backends
+    # Backends
     validate_hash($backends)
-    create_resources(varnish::backend,$backends)
+    create_resources(varnish::backend, $backends)
 
-    #Probes
+    # Probes
     validate_hash($probes)
-    create_resources(varnish::probe,$probes)
+    create_resources(varnish::probe, $probes)
 
-    #Directors
+    # Directors
     validate_hash($directors)
-    create_resources(varnish::director,$directors)
+    create_resources(varnish::director, $directors)
 
-    #Selectors
+    # Selectors
     validate_hash($selectors)
-    create_resources(varnish::selector,$selectors)
+    create_resources(varnish::selector, $selectors)
 
-    #ACLs
+    # ACLs
     validate_hash($acls)
     $default_acls = {
-      blockedips => { hosts => $blockedips },
-      purge => { hosts => $purgeips },
+      blockedips => {
+        hosts      => $blockedips
+      }
+      ,
+      purge      => {
+        hosts      => $purgeips,
+      }
+      ,
     }
     $all_acls = merge($default_acls, $acls)
-    create_resources(varnish::acl,$all_acls)
-  }
-}
+    create_resources(varnish::acl, $all_acls)
