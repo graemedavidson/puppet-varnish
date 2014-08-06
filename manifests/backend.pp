@@ -1,11 +1,16 @@
-#backend.pp
-define varnish::backend(
+# backend.pp
+define varnish::backend (
   $host,
   $port,
-  $probe = undef,
-) {
-
-  validate_re($title,'^[A-Za-z0-9_]*$', "Invalid characters in backend name ${title}. Only letters, numbers and underscore are allowed.")
+  $probe                 = undef,
+  $host_header           = undef,
+  $connect_timeout       = undef,
+  $first_byte_timeout    = undef,
+  $between_bytes_timeout = undef,
+  $max_connections       = undef) {
+  # Validate name of backend
+  validate_re($title, '^[A-Za-z0-9_]*$', "Invalid characters in backend name ${title}. Only letters, numbers and underscore are allowed."
+  )
 
   if (!is_ip_address($host)) {
     fail("Backend host ${host} is not an IP Address!")
