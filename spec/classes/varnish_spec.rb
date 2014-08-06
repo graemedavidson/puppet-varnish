@@ -63,7 +63,7 @@ describe 'varnish', :type => :class do
     end
   end
 
-  context "on a RedHat" do
+  context "on a RedHat 6 or earlier" do
     let :facts do
       {
         :osfamily        => 'RedHat',
@@ -80,6 +80,55 @@ describe 'varnish', :type => :class do
     it { should contain_file('varnish-conf').with(
       'ensure'  => 'present',
       'path'    => '/etc/sysconfig/varnish',
+      'owner'   => 'root',
+      'group'   => 'root',
+      'mode'    => '0644',
+      'require' => 'Package[varnish]',
+      'notify'  => 'Service[varnish]'
+      )
+    }
+    it { should contain_file('storage-dir').with(
+      'ensure'  => 'directory',
+      'path'   => '/var/lib/varnish-storage',
+      'require' => 'Package[varnish]'
+      )
+    }
+    context "without shmlog_tempfs" do
+      let :params do
+        { :shmlog_tempfs => false }
+      end
+
+      it { should_not contain_class('varnish::shmlog') }
+    end
+  end
+
+  context "on a RedHat 7 or later" do
+    let :facts do
+      {
+        :osfamily        => 'RedHat',
+        :concat_basedir  => '/dne',
+        :operatingsystem => 'RedHat',
+	:operatingsystemmajrelease => 7
+      }
+    end
+    
+    it { should compile }
+    it { should contain_class('varnish::install').with('add_repo' => 'true') }
+    it { should contain_class('varnish::service').with('start' => 'yes') }
+    it { should contain_class('varnish::shmlog') }
+    it { should contain_file('varnish-conf').with(
+      'ensure'  => 'present',
+      'path'    => '/etc/systemd/system/varnish.service',
+      'owner'   => 'root',
+      'group'   => 'root',
+      'mode'    => '0644',
+      'require' => 'Package[varnish]',
+      'notify'  => 'Service[varnish]'
+      )
+    }
+    it { should contain_file('varnish-conf-params').with(
+      'ensure'  => 'present',
+      'path'    => '/etc/varnish/varnish.params',
       'owner'   => 'root',
       'group'   => 'root',
       'mode'    => '0644',
