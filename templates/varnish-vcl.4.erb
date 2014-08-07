@@ -10,11 +10,13 @@ include "includes/probes.vcl";
 #Import file with backend definitions
 include "includes/backends.vcl";
 
-#Import file with director definitions;
-include "includes/directors.vcl";
-
 #Import file with acl definitions
 include "includes/acls.vcl";
+
+sub vcl_init {
+	#Import file with director definitions;
+	include "includes/directors.vcl";
+}
 
 sub vcl_recv {
 
@@ -82,7 +84,7 @@ sub vcl_recv {
   include "includes/backendselection.vcl";
 
   # Allows purge for the IPs in purge ACL
-  if (req.request == "PURGE") {
+  if (req.method == "PURGE") {
     if (!(client.ip ~ purge)) {
         return(synth( 405, "Not allowed."));
     }
@@ -92,16 +94,16 @@ sub vcl_recv {
     ban(" req.url == " + req.url);
     # Throw a synthetic page so the
     # request won't go to the backend.
-    return(synth( 200, "Added ban."));      
+    return(purge);      
   }
 
-  if (req.request != "GET" &&
-      req.request != "HEAD" &&
-      req.request != "PUT" &&
-      req.request != "POST" &&
-      req.request != "TRACE" &&
-      req.request != "OPTIONS" &&
-      req.request != "DELETE") {
+  if (req.method != "GET" &&
+      req.method != "HEAD" &&
+      req.method != "PUT" &&
+      req.method != "POST" &&
+      req.method != "TRACE" &&
+      req.method != "OPTIONS" &&
+      req.method != "DELETE") {
      /* Non-RFC2616 or CONNECT which is weird. */
      return (pipe);
   }
@@ -116,16 +118,10 @@ sub vcl_pipe {
 
 sub vcl_hit {
    std.log( "CACHE-DEBUG URL:"+req.url+" COOKIE:"+req.http.Cookie+" AVISO:HIT IP:"+client.ip);
-   if (req.request == "PURGE") {
-      return(purge)
-   }
 }
 
 sub vcl_miss {
     std.log( "CACHE-DEBUG URL:"+req.url+" COOKIE:"+req.http.Cookie+" AVISO:MISS IP:"+client.ip);
-    if (req.request == "PURGE") {
-       return(purge)
-    }
 }
 
 sub vcl_pass {
@@ -184,26 +180,26 @@ sub vcl_backend_error {
      
      ## Moved Permanently
      if (beresp.status == 750) {
-        set resp.http.Location = obj.response;
-        set resp.status = 301;
+        set beresp.http.Location = beresp.reason;
+        set beresp.status = 301;
         return(deliver);
      }
 
-     set resp.http.Content-Type = "text/html; charset=utf-8";
-     set resp.http.Retry-After = "5";
+     set beresp.http.Content-Type = "text/html; charset=utf-8";
+     set beresp.http.Retry-After = "5";
      synthetic ({"
  <?xml version="1.0" encoding="utf-8"?>
  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
  <html>
    <head>
-     <title>"} + beresp.status + " " + beresp.response + {"</title>
+     <title>"} + beresp.status + " " + beresp.reason + {"</title>
    </head>
    <body>
-     <h1>Error "} + beresp.status + " " + beresp.response + {"</h1>
-     <p>"} + beresp.response + {"</p>
+     <h1>Error "} + beresp.status + " " + beresp.reason + {"</h1>
+     <p>"} + beresp.reason + {"</p>
      <h3>Guru Meditation:</h3>
-     <p>XID: "} + req.xid + {"</p>
+     <p>XID: "} + bereq.xid + {"</p>
      <hr>
     <p>Varnish cache server</p>
    </body>
