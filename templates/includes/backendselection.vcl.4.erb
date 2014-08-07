@@ -2,7 +2,7 @@ if (<%= @condition -%>) {
     <%- if @movedto -%>
   return(synth( 750, "<%= @movedto -%>" + req.url));  
     <%- else -%>
-  set req.backend_hint = <%= @title -%>;
+  set req.backend_hint = <%= @title -%>.backend();
       <%- if @newurl -%>
   set req.url = <%= @newurl -%>;
       <%- end -%>
