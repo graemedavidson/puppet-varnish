@@ -45,6 +45,7 @@
 
 class varnish (
   $start                        = 'yes',
+  $enable                       = 'true',
   $nfiles                       = '131072',
   $memlock                      = '82000',
   $storage_type                 = 'malloc',
@@ -80,6 +81,7 @@ class varnish (
   # enable Varnish service
   class {'varnish::service':
     start => $start,
+    enabled => $enable,
   }
 
   # mount shared memory log dir as tempfs
