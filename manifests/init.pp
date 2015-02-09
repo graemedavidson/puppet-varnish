@@ -81,8 +81,8 @@ class varnish (
 
   # enable Varnish service
   class { 'varnish::service':
-    start => $start,
-    enabled => $enable,
+    start   => $start,
+    enable  => $enable,
   }
 
   # mount shared memory log dir as tempfs
