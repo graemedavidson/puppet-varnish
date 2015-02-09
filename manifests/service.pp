@@ -14,11 +14,13 @@
 #
 # disable Varnish
 # class {'varnish::service':
-#   start => 'no',
+#   start   => 'no',
+#   enable  => false,
 # }
 
 class varnish::service (
   $start = 'yes',
+  $enable = true,
 ) {
 
   # include install
@@ -39,6 +41,7 @@ class varnish::service (
 
   service {'varnish':
     ensure  => $service_state,
+    enable  => $enable,
     restart => $reload_cmd,
     require => Package['varnish'],
   }
